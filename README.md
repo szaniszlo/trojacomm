@@ -1,8 +1,7 @@
 # trojacomm
-Experimenting with "dust" framework for 6502 CPU development using "acme" on Mac OS X.
+Experimenting with dustlater framework for 6502 CPU development using ACME cross-compiler on Mac OS X.
 
-To run the code, install and configure "dust" and then run:
+To run the code, install and configure "[dustlayer](http://dustlayer.com/about/)" and then run:
 % dust compile
 
-This shall build a PRG file and launch it in your configure C64 emulator.
-
+This shall build a PRG file and launch it inside your configured VICE C64 emulator.
