@@ -12,9 +12,8 @@ main
           jsr install_irq
           rts         ; return to basic
 
-
 ;================================
-; Our custom interrupt routines 
+; The Custom interrupt routine 
 ;================================
 
 irq        dec $d019          ; acknowledge IRQ / clear register for next interrupt
@@ -59,19 +58,19 @@ background_cycle
 show_address
             lda $d41b
             ldy #$20
-            jsr print_hex
+            jsr print_hex_last_row
             lda $d41c
             ldy #$22
-            jsr print_hex
+            jsr print_hex_last_row
             lda #$00
             ldy #$24
-            jsr print_hex
+            jsr print_hex_last_row
             lda $fd
             ldy #$26
-            jsr print_hex
+            jsr print_hex_last_row
             rts
-print_hex         ; accu - the value
-                  ; the start value offset for the value on the last screen line (#$00-#$27)
+print_hex_last_row         ; accu - the value
+                           ; the start value offset for the value on the last screen line (#$00-#$27)
             pha 
             lsr 
             lsr 
@@ -88,98 +87,4 @@ print_hex         ; accu - the value
             sta $07c1, y
             rts 
 
-
-
 convtable !byte $30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$1,$2,$3,$4,$5,$6
-
-;============================================================
-;    IRQ setup and cleanup
-;============================================================
-
-install_irq
-            sei         ; set interrupt disable flag
-
-            ldy #$7f    ; $7f = %01111111
-            sty $dc0d   ; Turn off CIAs Timer interrupts ($7f = %01111111)
-            sty $dd0d   ; Turn off CIAs Timer interrupts ($7f = %01111111)
-            lda $dc0d   ; by reading $dc0d and $dd0d we cancel all CIA-IRQs in queue/unprocessed
-            lda $dd0d   ; by reading $dc0d and $dd0d we cancel all CIA-IRQs in queue/unprocessed
-             
-            lda #$01    ; Set Interrupt Request Mask...
-            sta $d01a   ; ...we want IRQ by Rasterbeam (%00000001)
-
-            lda #<irq   ; point IRQ Vector to our custom irq routine
-            ldx #>irq 
-            sta $0314    ; store in $314/$315
-            stx $0315   
-
-            lda #$00    ; trigger interrupt at row zero
-            sta $d012
-
-            lda #$00    ; set initialise background colors to black
-            sta $d020
-
-            cli         ; clear interrupt disable flag
-            rts  
-
-deinstall_irq
-            sei           ; disable interrupts
-            lda #$1b
-            sta $d011     ; restore text screen mode
-            lda #$81
-            sta $dc0d     ; enable Timer A interrupts on CIA 1
-            lda #$0
-            sta $d01a     ; disable video interrupts
-            lda #$31
-            sta cinv      ; restore old IRQ vector
-            lda #$ea
-            sta cinv+1
-            bit $dd0d     ; re-enable NMI interrupts
-            cli
-            rts
-
-;============================================================
-;    Troja - virus emulation. Makes all characters pile up
-;            at the bottom of the screen.
-;============================================================
-
-troja_init  lda #$01      ; initial invocation sets the "on" flag to non-zero
-            sta $fd
-troja_start lda #$bf      ; initialise pointer to the end of the second last screen line 
-            sta $fb
-            lda #$07
-            sta $fc
-            rts
-
-troja_cycle lda $fd
-            beq troja_rts
-            lda #$00      ; reset the on flag, the interrup routine now needs to move a character, if non is found
-            sta $fd       ; theb the flag won't be set and the routine will go into low-effort mode.
-
-troja_loop  ldy #$00      ; looping through the screen
-            lda ($fb),y
-            cmp #$20
-            beq troja_dec
-            tax
-            ldy #$28
-            lda ($fb),y
-            cmp #$20
-            bne troja_dec
-            txa
-            sta ($fb),y
-            ldy #$00
-            lda #$20
-            sta ($fb),y
-            lda #$28        ; set up to check the following line
-            sta $fd         ; reset the $fd flag to non zero - means we moved a value in this loop
-            sbc $fb
-            bcc troja_loop ; was bpl
-            jmp troja_high 
-troja_dec   dec $fb         ; decrement pointer to the next position
-            bne troja_loop  ; return if no carry detected
-troja_high  dec $fc         ; handle the high address
-            lda #$03
-            cmp $fc
-            bne troja_loop
-            jsr troja_start
-troja_rts   rts 

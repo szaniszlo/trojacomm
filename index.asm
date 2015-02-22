@@ -26,3 +26,5 @@
 !source "code/config_symbols.asm"
 !source "code/config_resources.asm"
 !source "code/sub_check_keyboard.asm"
+!source "code/sub_troja.asm"
+!source "code/sub_irq_utils.asm"
