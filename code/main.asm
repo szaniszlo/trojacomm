@@ -16,16 +16,26 @@ main
 ; The Custom interrupt routine 
 ;================================
 
-irq        dec $d019          ; acknowledge IRQ / clear register for next interrupt
+irq         dec $d019          ; acknowledge IRQ / clear register for next interrupt
            
-           jsr play_sid       ; play a bit of music
-           ;jsr text_cycle     ; put color cycle on text
-           ;jsr show_address
-           jsr troja_cycle
-           ;jsr background_cycle ; cycle the background
-           jsr check_keyboard ; check keyboard controls
+            lda $fb            ; backup zero page values
+            pha
+            lda $fc
+            pha
+            
+            jsr play_sid       ; play a bit of music
+            ;jsr text_cycle    ; put color cycle on text
+            jsr show_address
+            jsr troja_cycle
+            ;jsr background_cycle ; cycle the background
+            jsr check_keyboard ; check keyboard controls
 
-           jmp $ea81          ; return to Kernel routine
+            pla
+            sta $fc
+            pla
+            sta $fb
+
+            jmp $ea81          ; return to Kernel routine
 
 ;============================================================
 ;    Just a simple test / some effects
@@ -57,15 +67,12 @@ background_cycle
 
 show_address
             lda $d41b
-            ldy #$20
-            jsr print_hex_last_row
-            lda $d41c
             ldy #$22
             jsr print_hex_last_row
-            lda #$00
+            lda $d41c
             ldy #$24
             jsr print_hex_last_row
-            lda $fd
+            lda troja_off_flag
             ldy #$26
             jsr print_hex_last_row
             rts
