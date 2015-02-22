@@ -16,8 +16,8 @@ install_irq
 
             lda #<irq   ; point IRQ Vector to our custom irq routine
             ldx #>irq 
-            sta $0314    ; store in $314/$315
-            stx $0315   
+            sta cinv    ; store in $314/$315
+            stx cinv+1   
 
             lda #$00    ; trigger interrupt at row zero
             sta $d012
