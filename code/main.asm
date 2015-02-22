@@ -76,6 +76,7 @@ show_address
             ldy #$26
             jsr print_hex_last_row
             rts
+            
 print_hex_last_row         ; accu - the value
                            ; the start value offset for the value on the last screen line (#$00-#$27)
             pha 
