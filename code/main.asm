@@ -25,7 +25,7 @@ irq         dec $d019          ; acknowledge IRQ / clear register for next inter
             
             jsr play_sid       ; play a bit of music
             ;jsr text_cycle    ; put color cycle on text
-            ;jsr show_address
+            jsr show_address
             jsr troja_cycle
             ;jsr background_cycle ; cycle the background
             jsr check_keyboard ; check keyboard controls

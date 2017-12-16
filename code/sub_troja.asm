@@ -17,7 +17,7 @@ troja_start lda #$bf                ; initialise pointer to the end of the secon
 troja_cycle lda troja_off_flag
             beq troja_rts
             lda #$00                ; reset the on flag, the interrup routine now needs to move a character, if non is found
-            sta troja_off_flag      ; theb the flag won't be set and the routine will go into low-effort mode.
+            sta troja_off_flag      ; then the flag won't be set and the routine will go into low-effort mode.
 
 troja_loop  ldy #$00                ; looping through the screen
             lda ($fb),y
